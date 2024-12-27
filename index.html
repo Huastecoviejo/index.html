@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Establishing an Electrically Safe Work Condition</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #d9534f;
+        }
+        .step {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .button {
+            display: inline-block;
+            margin: 10px 5px;
+            padding: 10px 20px;
+            background-color: #d9534f;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #c9302c;
+        }
+        .hidden {
+            display: none;
+        }
+        .final-score {
+            font-weight: bold;
+        }
+        #shock-image {
+            width: 200px;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Establishing an Electrically Safe Work Condition</h1>
+    <div id="game-container">
+        <div id="welcome-screen" class="step">
+            <p>Welcome to the NFPA 70E Safety Game: Establishing an Electrically Safe Work Condition!</p>
+            <p>Your goal is to follow all steps in the process to ensure safety while working on electrical equipment.</p>
+            <button class="button" onclick="startGame()">Start Game</button>
+        </div>
+
+        <div id="game-step" class="step hidden">
+            <h2 id="step-title">Step Title</h2>
+            <p id="step-question">Question text here...</p>
+            <button class="button" id="option-a" onclick="submitAnswer('a')">Option A</button>
+            <button class="button" id="option-b" onclick="submitAnswer('b')">Option B</button>
+            <button class="button" id="option-c" onclick="submitAnswer('c')">Option C</button>
+            <button class="button" id="option-d" onclick="submitAnswer('d')">Option D</button>
+            <img id="shock-image" src="https://via.placeholder.com/200x200.png?text=Electrocuted" alt="Electrocution Warning">
+            <audio id="buzz-sound" src="https://www.soundjay.com/button/beep-09.mp3" preload="auto"></audio>
+        </div>
+
+        <div id="result-screen" class="step hidden">
+            <h2>Game Over!</h2>
+            <p class="final-score" id="final-score"></p>
+            <p id="result-message"></p>
+            <button class="button" onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const steps = [
+            {
+                title: "Step 1: Determine Electrical Sources",
+                question: "How do you identify electrical sources before working?",
+                answers: shuffleAnswers([
+                    { text: "Review diagrams and tags to locate all sources", isCorrect: true },
+                    { text: "Open the nearest disconnect switch immediately", isCorrect: false },
+                    { text: "Test the circuit without checking documentation", isCorrect: false },
+                    { text: "Look for a warning sign", isCorrect: false }
+                ]),
+                explanation: `Correct! NFPA 70E (120.6 Step 1) requires reviewing diagrams, drawings, and tags to locate all electrical sources.
+                - OSHA Standard: 1910.333(b)(2)(ii)(A).`
+            },
+            {
+                title: "Step 2: Interrupt Load Current",
+                question: "What should you do before opening a disconnect device?",
+                answers: shuffleAnswers([
+                    { text: "Safely interrupt the load current", isCorrect: true },
+                    { text: "Assume the load is minimal", isCorrect: false },
+                    { text: "Apply lockout/tagout devices immediately", isCorrect: false },
+                    { text: "Inspect the equipment for voltage", isCorrect: false }
+                ]),
+                explanation: `Correct! NFPA 70E (120.6 Step 2) requires interrupting the load current before opening any disconnect device.
+                - OSHA Standard: 1910.333(b)(2)(ii)(B).`
+            },
+            {
+                title: "Step 3: Visually Verify Disconnects",
+                question: "How do you confirm disconnecting devices are open?",
+                answers: shuffleAnswers([
+                    { text: "Verify that blades are fully open or circuit breakers are withdrawn", isCorrect: true },
+                    { text: "Assume the switch is off if it looks open", isCorrect: false },
+                    { text: "Ask a coworker for confirmation", isCorrect: false },
+                    { text: "Check nearby warning labels", isCorrect: false }
+                ]),
+                explanation: `Correct! NFPA 70E (120.6 Step 3) requires visually verifying that disconnect blades are fully open or circuit breakers are withdrawn to the test position.
+                - OSHA Standard: 1910.333(b)(2)(ii)(B).`
+            },
+            {
+                title: "Step 4: Release Stored Electrical Energy",
+                question: "What must be done with stored electrical energy?",
+                answers: shuffleAnswers([
+                    { text: "Safely release it to prevent re-energization", isCorrect: true },
+                    { text: "Label it as dangerous for future work", isCorrect: false },
+                    { text: "Test the circuit for current", isCorrect: false },
+                    { text: "Inspect for nonelectrical hazards first", isCorrect: false }
+                ]),
+                explanation: `Correct! NFPA 70E (120.6 Step 4) requires safely releasing stored electrical energy to prevent re-energization.
+                - OSHA Standard: 1910.333(b)(2)(ii)(C).`
+            },
+            {
+                title: "Step 5: Block Nonelectrical Energy",
+                question: "How do you handle nonelectrical stored energy?",
+                answers: shuffleAnswers([
+                    { text: "Block or relieve it to prevent accidental movement", isCorrect: true },
+                    { text: "Ignore it as it is not electrical", isCorrect: false },
+                    { text: "Mark it for future inspection", isCorrect: false },
+                    { text: "Inspect for nearby hazards", isCorrect: false }
+                ]),
+                explanation: `Correct! NFPA 70E (120.6 Step 5) requires blocking or relieving nonelectrical stored energy.
+                - OSHA Standard: 1910.333(b)(2)(ii)(D).`
+            },
+            {
+                title: "Step 6: Apply Lockout/Tagout Devices",
+                question: "What is the next step after de-energizing the equipment?",
+                answers: shuffleAnswers([
+                    { text: "Apply lockout/tagout devices to prevent re-energization", isCorrect: true },
+                    { text: "Begin working immediately", isCorrect: false },
+                    { text: "Inspect nearby warning signs", isCorrect: false },
+                    { text: "Confirm that the disconnect is open", isCorrect: false }
+                ]),
+                explanation: `Correct! NFPA 70E (120.6 Step 6) requires applying lockout/tagout devices after de-energizing equipment.
+                - OSHA Standard: 1910.333(b)(2)(iii)(A).`
+            },
+            {
+                title: "Step 7: Test for Absence of Voltage",
+                question: "What is the correct way to test for the absence of voltage?",
+                answers: shuffleAnswers([
+                    { text: "Use a test instrument rated for the circuit to test phase-to-phase and phase-to-ground", isCorrect: true },
+                    { text: "Assume the circuit is safe if disconnected", isCorrect: false },
+                    { text: "Use a simple voltage detector without verifying accuracy", isCorrect: false },
+                    { text: "Ask a coworker to confirm the circuit is de-energized", isCorrect: false }
+                ]),
+                explanation: `Correct! NFPA 70E (120.6 Step 7) requires testing each phase conductor or circuit part at each point of work, both phase-to-phase and phase-to-ground, using an adequately rated portable test instrument.
+                - Before and after testing, verify the test instrument operates satisfactorily using a known voltage source.
+                - Exception No. 1: Permanently mounted absence-of-voltage testers can be used if they meet these requirements.
+                - Exception No. 2: For electrical systems over 1000 volts, noncontact capacitive test instruments are permitted.
+                - OSHA Standard: 1910.333(b)(2)(iv).`
+            },
+            {
+                title: "Step 8: Apply Temporary Grounding",
+                question: "When is temporary grounding required?",
+                answers: shuffleAnswers([
+                    { text: "When induced voltage or stored energy may be present", isCorrect: true },
+                    { text: "Only when a supervisor advises", isCorrect: false },
+                    { text: "For circuits above 1000 volts only", isCorrect: false },
+                    { text: "Only if lockout/tagout is not applied", isCorrect: false }
+                ]),
+                explanation: `Correct! NFPA 70E (120.6 Step 8) requires grounding conductors when induced voltage or stored energy is possible.
+                - OSHA Standards: 1910.333(b)(2), 1910.333(c)(3)(ii)(C).`
+            }
+        ];
+
+        let currentStep = 0;
+        let score = 0;
+
+        function shuffleAnswers(answers) {
+            return answers.sort(() => Math.random() - 0.5);
+        }
+
+        function startGame() {
+            document.getElementById("welcome-screen").classList.add("hidden");
+            showStep();
+        }
+
+        function showStep() {
+            const step = steps[currentStep];
+            document.getElementById("game-step").classList.remove("hidden");
+            document.getElementById("step-title").innerText = step.title;
+            document.getElementById("step-question").innerText = step.question;
+            document.getElementById("option-a").innerText = step.answers[0].text;
+            document.getElementById("option-b").innerText = step.answers[1].text;
+            document.getElementById("option-c").innerText = step.answers[2].text;
+            document.getElementById("option-d").innerText = step.answers[3].text;
+            document.getElementById("shock-image").style.display = "none"; // Hide image at step start
+        }
+
+        function submitAnswer(selectedAnswer) {
+            const step = steps[currentStep];
+            const answer = step.answers[selectedAnswer.charCodeAt(0) - 97];
+            if (answer.isCorrect) {
+                alert(step.explanation);
+                score += 10;
+                document.getElementById("shock-image").style.display = "none";
+            } else {
+                document.getElementById("buzz-sound").play(); // Play buzz sound
+                document.getElementById("shock-image").style.display = "block"; // Show shock image
+                alert("Incorrect. Be cautious and follow proper procedures!");
+            }
+            currentStep++;
+            if (currentStep < steps.length) {
+                showStep();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            document.getElementById("game-step").classList.add("hidden");
+            document.getElementById("result-screen").classList.remove("hidden");
+            document.getElementById("final-score").innerText = `Your final score is: ${score}/${steps.length * 10}`;
+            document.getElementById("result-message").innerText = score === steps.length * 10
+                ? "Excellent work! You followed all NFPA 70E steps to establish an electrically safe work condition."
+                : "Good job! Review the steps you missed to improve your safety practices.";
+        }
+
+        function restartGame() {
+            currentStep = 0;
+            score = 0;
+            document.getElementById("result-screen").classList.add("hidden");
+            document.getElementById("welcome-screen").classList.remove("hidden");
+        }
+    </script>
+</body>
+</html>
